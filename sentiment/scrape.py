@@ -221,11 +221,15 @@ def main():
     global session, sentiment_pipeline
 
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+    logging.info("Connecting to Database")
     engine = create_engine("mysql+pymysql://sentiment:sentiment@qn/sentiment")
     Base.metadata.create_all(engine, checkfirst=True)
     session = Session(engine)
+    logging.info("Setting up Sentiment Pipeline")
+
     sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
 
+    logging.info("Getting News from Finviz")
     finviz_html = get_finviz_html()
     top_gainers = get_top_gainers(finviz_html)
     top_loosers = get_top_loosers(finviz_html)
