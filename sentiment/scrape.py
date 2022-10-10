@@ -221,7 +221,7 @@ def main():
     global session, sentiment_pipeline
 
     logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
-    engine = create_engine("mysql+pymysql://root:yosemite66@qn/sentiment")
+    engine = create_engine("mysql+pymysql://root:root@qn/sentiment")
     Base.metadata.create_all(engine, checkfirst=True)
     session = Session(engine)
     sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
