@@ -1,0 +1,19 @@
+name: sentiment_dashboard
+channels:
+  - conda-forge
+  - huggingface
+  - anaconda
+dependencies:
+  - python=3.9
+  - transformers
+  - tokenizers=0.12.1
+  - dash
+  - pymysql 
+  - pandas 
+  - sqlalchemy 
+  - beautifulsoup4 
+  - requests
+  - pip
+  - pip:
+      - yfinance  
+prefix: /Users/tobias/miniforge3/envs/sentiment_dashboard
