@@ -1,8 +1,7 @@
 from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 from bs4 import BeautifulSoup
-import pandas as pd
-from datetime import datetime, date, timedelta
+from datetime import datetime, date
  
 import requests
 # from sqlalchemy.orm import declarative_base, joinedload, subqueryload
@@ -15,7 +14,6 @@ import yfinance as yf
 from domain import Base, Recommendation, Ticker, Stock
 
 import logging
-
 
 def scrape_finwiz_news(ticker):
     finwiz_url = 'https://finviz.com/quote.ashx?t='
@@ -37,7 +35,7 @@ def scrape_by_class(link, element, clazz):
     result = ""
     for e in news_detail:
         result += e.text
-    return result
+    return " ".join(result.split())
 
 def scrape_detail(link):
     try:
@@ -47,10 +45,13 @@ def scrape_detail(link):
             return scrape_by_class(link, "div", "article-content")
         elif link.startswith("https://www.investors.com"):
             return scrape_by_class(link, "div", "single-post-content")
-        elif link.startswith("https://www.bizjournals.com/austin"):
+        elif link.startswith("https://www.bizjournals.com"):
             return scrape_by_class(link, "div", "content")
         elif link.startswith("https://www.barrons.com/articles") or link.startswith("https://www.marketwatch.com/story") or link.startswith("https://aap.thestreet.com/story"): 
-            return scrape_by_class(link, "div", "article__body")    
+            return scrape_by_class(link, "div", "article__body")   
+        elif link.startswith("https://www.fool.com/"):
+            return scrape_by_class(link, "div", "shadow-card")  
+
     except HTTPError:
         logging.warn("Scraping Error for %s", link)
     return None
@@ -210,6 +211,7 @@ def amend_stock_data():
     session.commit()    
 
 def re_scrape():
+    logging.info("Rescraping empty tickers", )
     empty_ticker_text = session.query(Ticker).filter(Ticker.text == None)
     for ticker in empty_ticker_text:
         ticker.text = scrape_detail(ticker.link)
@@ -240,6 +242,7 @@ def main():
 
     for ticker in tickers[:1]:
         parse_finwiz_news(ticker)
+    # re_scrape()
     session.close()
     logging.info("----- done ------")
 
