@@ -53,7 +53,7 @@ def scrape_detail(link):
             return scrape_by_class(link, "div", "shadow-card")  
 
     except HTTPError:
-        logging.warn("Scraping Error for %s", link)
+        logging.warning("Scraping Error for %s", link)
     return None
 
 def set_sentiment(ticker):
@@ -170,7 +170,7 @@ def parse_finwiz_news(symbol):
             create_recommendation(stock)
             session.commit()
     except HTTPError:
-        logging.warn("Scraping Error")
+        logging.warning("Scraping Error")
 
 def get_gainers_loosers(html, id):
     tickers = html.find(id=id)
@@ -240,7 +240,7 @@ def main():
     known_symbols = [stock.symbol for stock in known_stocks]
     tickers = list(set(known_symbols + top_gainers + top_loosers + major_news))
 
-    for ticker in tickers[:1]:
+    for ticker in tickers:
         parse_finwiz_news(ticker)
     # re_scrape()
     session.close()
