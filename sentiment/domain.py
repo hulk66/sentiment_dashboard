@@ -10,6 +10,13 @@ from sqlalchemy.orm import relationship
 
 Base = declarative_base()
 
+class Log(Base):
+    __tablename__ = "log"
+    id = Column(Integer, primary_key = True, autoincrement = True)
+    start = Column(DateTime)
+    end = Column(DateTime)
+    status = Column(String(10))
+
 class Stock(Base):
     __tablename__ = "stock"
     symbol = Column(String(50), primary_key=True)

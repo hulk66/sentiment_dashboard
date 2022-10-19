@@ -11,7 +11,7 @@ from sqlalchemy import select
 
 from transformers import pipeline
 import yfinance as yf
-from domain import Base, Recommendation, Ticker, Stock
+from domain import Base, Recommendation, Ticker, Stock, Log
 
 import logging
 
@@ -227,6 +227,12 @@ def main():
     engine = create_engine("mysql+pymysql://sentiment:sentiment@qn/sentiment")
     Base.metadata.create_all(engine, checkfirst=True)
     session = Session(engine)
+    log = Log()
+    log.start = datetime.now()
+    log.status = "running"
+    session.add(log)
+    session.commit()
+
     logging.info("Setting up Sentiment Pipeline")
 
     sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
@@ -243,6 +249,9 @@ def main():
     for ticker in tickers:
         parse_finwiz_news(ticker)
     # re_scrape()
+    log.end = datetime.now()
+    log.status = "done"
+    session.commit()
     session.close()
     logging.info("----- done ------")
 
