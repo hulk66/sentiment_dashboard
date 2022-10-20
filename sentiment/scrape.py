@@ -43,6 +43,8 @@ def scrape_detail(link):
             return scrape_by_class(link, "div", "caas-body")
         elif link.startswith("https://www.wsj.com/articles"):
             return scrape_by_class(link, "div", "article-content")
+        elif link.startswith("https://www.wsj.com/livecoverage")
+            return scrape_by_class(link, "div", "WSJTheme-module--text--37ld_QSx")
         elif link.startswith("https://www.investors.com"):
             return scrape_by_class(link, "div", "single-post-content")
         elif link.startswith("https://www.bizjournals.com"):
