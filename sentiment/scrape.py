@@ -53,6 +53,8 @@ def scrape_detail(link):
             return scrape_by_class(link, "div", "article__body")   
         elif link.startswith("https://www.fool.com/"):
             return scrape_by_class(link, "div", "shadow-card")  
+        elif link.startswith("https://www.ft.com/"):
+            return scrape_by_class(link, "div", "article--body")  
 
     except HTTPError:
         logging.warning("Scraping Error for %s", link)
