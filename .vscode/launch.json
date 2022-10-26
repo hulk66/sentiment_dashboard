@@ -13,6 +13,16 @@
             "justMyCode": true
         },
         {
+            "name": "Board",
+            "type": "python",
+            "request": "launch",
+            "module": "streamlit",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args": ["run", "sentiment/board.py"]
+        },
+
+        {
             "name": "Scrape",
             "type": "python",
             "request": "launch",

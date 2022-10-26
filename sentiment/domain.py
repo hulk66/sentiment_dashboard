@@ -68,6 +68,7 @@ class Recommendation(Base):
         return {
             'symbol': self.stock.symbol,
             'shortName': self.stock.shortName,
+            'industry': self.stock.industry,
             'datetime': self.datetime,
             'recommendationMean': self.recommendationMean,
             'targetMeanPrice': self.targetMeanPrice,
