@@ -54,7 +54,7 @@ def scrape_detail(link):
         elif link.startswith("https://www.fool.com/"):
             return scrape_by_class(link, "div", "shadow-card")  
         elif link.startswith("https://www.ft.com/"):
-            return scrape_by_class(link, "div", "article--body")  
+            return scrape_by_class(link, "div", "n-content-body")  
 
     except HTTPError:
         logging.warning("Scraping Error for %s", link)
@@ -157,9 +157,9 @@ def parse_finwiz_news(symbol):
                 stock = Stock()
                 stock.symbol = symbol
                 stock_data = yf.Ticker(symbol)
-                stock.longName = stock_data.info['longName'] if 'longName' in stock_data.info else None
-                stock.shortName = stock_data.info['shortName'] if 'shortName' in stock_data.info else None
-                stock.industry = stock_data.info['industry'] if 'industry' in stock_data.info else None
+                stock.longName = stock_data.info['longName'][:512] if 'longName' in stock_data.info else None
+                stock.shortName = stock_data.info['shortName'][:255] if 'shortName' in stock_data.info else None
+                stock.industry = stock_data.info['industry'][:255] if 'industry' in stock_data.info else None
 
                 session.add(stock)
 

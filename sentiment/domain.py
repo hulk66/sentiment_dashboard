@@ -9,6 +9,9 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
+LEN_STR_SHORT = 255
+LEN_STR_LONG = 512
+
 
 class Log(Base):
     __tablename__ = "log"
@@ -23,9 +26,9 @@ class Stock(Base):
     ticker = relationship("Ticker", back_populates="stock", cascade="all, delete-orphan")    
     recommendations = relationship("Recommendation", back_populates="stock", cascade="all, delete-orphan")    
 
-    industry = Column(String(50))
-    shortName = Column(String(50))
-    longName = Column(String(100))
+    industry = Column(String(LEN_STR_SHORT))
+    shortName = Column(String(LEN_STR_SHORT))
+    longName = Column(String(LEN_STR_LONG))
     
 class Recommendation(Base):
     __tablename__ = "recommendation"
@@ -109,9 +112,9 @@ class Ticker(Base):
     date = Column(String(20))
     time = Column(String(20))
     datetime = Column(DateTime)
-    headline = Column(String(512))
-    link = Column(String(512), primary_key=True)
-    source = Column(String(100))
+    headline = Column(String(LEN_STR_LONG))
+    link = Column(String(LEN_STR_LONG), primary_key=True)
+    source = Column(String(LEN_STR_SHORT))
     text = Column(Text)
     stock_id = Column(String(50), ForeignKey("stock.symbol"), nullable=False)
     stock = relationship("Stock", back_populates="ticker")
