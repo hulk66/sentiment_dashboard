@@ -43,7 +43,7 @@ def scrape_detail(link):
             return scrape_by_class(link, "div", "caas-body")
         elif link.startswith("https://www.wsj.com/articles"):
             return scrape_by_class(link, "div", "article-content")
-        elif link.startswith("https://www.wsj.com/livecoverage")
+        elif link.startswith("https://www.wsj.com/livecoverage"):
             return scrape_by_class(link, "div", "WSJTheme-module--text--37ld_QSx")
         elif link.startswith("https://www.investors.com"):
             return scrape_by_class(link, "div", "single-post-content")
@@ -147,7 +147,6 @@ def create_recommendation(stock):
     return recommendation
 
 def parse_finwiz_news(symbol):
-    logging.info("Getting News for %s", symbol)
     try:
         news = scrape_finwiz_news(symbol)
         if news:
@@ -249,9 +248,13 @@ def main():
     known_stocks = session.scalars(select(Stock))
     known_symbols = [stock.symbol for stock in known_stocks]
     tickers = list(set(known_symbols + top_gainers + top_loosers + major_news))
-
+    count = 0
+    total = len(tickers)
     for ticker in tickers:
+        logging.info("%i/%i - Getting News for %s", count, total, ticker)
         parse_finwiz_news(ticker)
+        count += 1
+
     # re_scrape()
     log.end = datetime.now()
     log.status = "done"
