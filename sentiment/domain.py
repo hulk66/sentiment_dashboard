@@ -24,7 +24,7 @@ class Stock(Base):
     __tablename__ = "stock"
     symbol = Column(String(50), primary_key=True)
     ticker = relationship("Ticker", back_populates="stock", cascade="all, delete-orphan")    
-    recommendations = relationship("Recommendation", back_populates="stock", cascade="all, delete-orphan")    
+    recommendations = relationship("FinancialData", back_populates="stock", cascade="all, delete-orphan")    
 
     industry = Column(String(LEN_STR_SHORT))
     shortName = Column(String(LEN_STR_SHORT))
