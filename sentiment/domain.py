@@ -107,19 +107,21 @@ class Recommendation(Base):
 
 class Ticker(Base):
     __tablename__ = "ticker"
+    id = Column(Integer, primary_key = True, autoincrement = True)
 
     
     date = Column(String(20))
     time = Column(String(20))
     datetime = Column(DateTime)
     headline = Column(String(LEN_STR_LONG))
-    link = Column(String(LEN_STR_LONG), primary_key=True)
+    link = Column(String(LEN_STR_LONG))
     source = Column(String(LEN_STR_SHORT))
     text = Column(Text)
     stock_id = Column(String(50), ForeignKey("stock.symbol"), nullable=False)
     stock = relationship("Stock", back_populates="ticker")
     sentiment = Column(String(20))
     score = Column(Float)
+    link_hash = Column(String(128), unique=True)
 
     def to_dict(self):
         return {

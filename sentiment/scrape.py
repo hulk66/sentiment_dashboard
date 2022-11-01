@@ -14,6 +14,7 @@ import yfinance as yf
 from domain import Base, Recommendation, Ticker, Stock, Log
 
 import logging
+import hashlib
 
 def scrape_finwiz_news(ticker):
     finwiz_url = 'https://finviz.com/quote.ashx?t='
@@ -70,11 +71,12 @@ def set_sentiment(ticker):
     
 def create_ticker_entry(row, last_date = None):
     link = row.a['href'].strip()
-    ticker = session.get(Ticker, link)
+    hash = hashlib.md5(link.encode()).hexdigest()
+    ticker = session.query(Ticker).filter(Ticker.link_hash == hash).one_or_none()
     if ticker is None:
         ticker = Ticker()
         ticker.link = link
-        
+        ticker.link_hash = hash
         date_scrape = row.td.text.strip().split()
         ticker.date = last_date
         if len(date_scrape) == 1:
