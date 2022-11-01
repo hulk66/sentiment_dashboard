@@ -15,6 +15,7 @@ dependencies:
   - requests
   - pip
   - streamlit
+  - alembic
   - pip:
       - yfinance  
 prefix: /Users/tobias/miniforge3/envs/sentiment_dashboard

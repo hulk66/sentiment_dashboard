@@ -30,8 +30,8 @@ class Stock(Base):
     shortName = Column(String(LEN_STR_SHORT))
     longName = Column(String(LEN_STR_LONG))
     
-class Recommendation(Base):
-    __tablename__ = "recommendation"
+class FinancialData(Base):
+    __tablename__ = "fin_data"
 
     id = Column(Integer, primary_key = True, autoincrement = True)
     stock_id = Column(String(50), ForeignKey("stock.symbol"), nullable=False)
@@ -113,15 +113,15 @@ class Ticker(Base):
     date = Column(String(20))
     time = Column(String(20))
     datetime = Column(DateTime)
-    headline = Column(String(LEN_STR_LONG))
-    link = Column(String(LEN_STR_LONG))
-    source = Column(String(LEN_STR_SHORT))
+    headline = Column(String(LEN_STR_LONG), nullable=False)
+    link = Column(String(LEN_STR_LONG), nullable=False)
+    source = Column(String(LEN_STR_SHORT), nullable=False)
     text = Column(Text)
     stock_id = Column(String(50), ForeignKey("stock.symbol"), nullable=False)
     stock = relationship("Stock", back_populates="ticker")
-    sentiment = Column(String(20))
-    score = Column(Float)
-    link_hash = Column(String(128), unique=True)
+    sentiment = Column(String(20), nullable=False)
+    score = Column(Float, nullable=False)
+    link_hash = Column(String(128), unique=True, nullable=False)
 
     def to_dict(self):
         return {

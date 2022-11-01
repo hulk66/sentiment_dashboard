@@ -6,7 +6,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from domain import Base, Recommendation, Ticker, Stock
+from domain import Base, FinancialData, Ticker, Stock
 
 engine = create_engine("mysql+pymysql://sentiment:sentiment@qn/sentiment")
 # engine = create_engine("sqlite:///ticker.db", echo=False, future=True)
@@ -27,12 +27,12 @@ min_date  = today - timedelta(weeks=6)
 
 max_score = st.slider("Max Recommendation Mean", min_value=1.0, max_value=5.0, value=2.0, step=0.1)
 min_analysts = st.slider("Min Number of Analysts", 0, 20, 5)
-good_recommendations_today = session.query(Recommendation) \
-    .filter(Recommendation.datetime == dt, \
-            Recommendation.recommendationMean < max_score, \
-            Recommendation.numberOfAnalystOpinions >= min_analysts, \
-            Recommendation.targetMeanPrice > Recommendation.currentPrice) \
-    .order_by(Recommendation.recommendationMean.asc()) \
+good_recommendations_today = session.query(FinancialData) \
+    .filter(FinancialData.datetime == dt, \
+            FinancialData.recommendationMean < max_score, \
+            FinancialData.numberOfAnalystOpinions >= min_analysts, \
+            FinancialData.targetMeanPrice > FinancialData.currentPrice) \
+    .order_by(FinancialData.recommendationMean.asc()) \
     .limit(25)
 
 #    .join(Ticker, Recommendation.stock_id == Ticker.stock_id) \
@@ -49,9 +49,9 @@ select_items = df_rt[["symbol", "shortName"]]
 st.dataframe(df_rt)
 selected_option = st.selectbox("Select Stock for more Detail", select_items, format_func=lambda s:session.query(Stock).get(s).shortName)
 st.write("Option = " + selected_option)
-history = session.query(Recommendation) \
-    .filter(Recommendation.stock_id == selected_option) \
-        .order_by(Recommendation.datetime.asc())
+history = session.query(FinancialData) \
+    .filter(FinancialData.stock_id == selected_option) \
+        .order_by(FinancialData.datetime.asc())
 df_history = pd.DataFrame.from_records([r.to_dict() for r in history])
 df_history = df_history[["datetime", "currentPrice", "targetMeanPrice", "targetMedianPrice"]]
 st.line_chart(df_history, x="datetime")

@@ -11,7 +11,7 @@ from sqlalchemy import select
 
 from transformers import pipeline
 import yfinance as yf
-from domain import Base, Recommendation, Ticker, Stock, Log
+from domain import Base, FinancialData, Ticker, Stock, Log
 
 import logging
 import hashlib
@@ -103,7 +103,7 @@ def create_recommendation(stock):
     # do this only if we don't already have the recommmendations for this today
     today = date.today()
     dt = datetime(today.year, today.month, today.day)
-    recommendation = session.query(Recommendation).filter(Recommendation.datetime == dt, Recommendation.stock == stock).one_or_none()
+    recommendation = session.query(FinancialData).filter(FinancialData.datetime == dt, FinancialData.stock == stock).one_or_none()
     if not recommendation:
         logging.info("Get Recommendation for %s", stock.shortName)
         module = "financialData"
@@ -113,7 +113,7 @@ def create_recommendation(stock):
         if r.json()['quoteSummary']['result']:
             result = r.json()['quoteSummary']['result'][0]
             fin_data = result['financialData']
-            recommendation = Recommendation()
+            recommendation = FinancialData()
             recommendation.stock = stock
             recommendation.datetime = date.today()
             recommendation.recommendationMean = get_raw_value(fin_data, 'recommendationMean')
