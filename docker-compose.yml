@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+
+  db:
+    image: mariadb:10.7.3
+    volumes:
+      - ${DB_DATA}:/var/lib/mysql
+      - ./alembic/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - 3306:3306
+    environment:
+      - MARIADB_ROOT_PASSWORD=example
+
+  redis:
+    image: redis
+    ports:
+      - 6379:6379
+    volumes:
+      - ${REDIS_DATA}:/data
+
+  adminer:
+    image: adminer
+    ports:
+      - 9090:8080
+  
+  #rabbitmq:
+  #  image: rabbitmq:management
+  #  hostname: rabbitmq
+  #  restart: always
+  #  ports:
+  #    - 5672:5672
+  #    - 15672:15672
+  #  volumes:
+  #    - ${RABBITMQ_DATA}:/var/lib/rabbitmq  
+
+
+  scrape:
+    image: hulk66/sentiment:${VERSION}
+    volumes:
+      - ${LOG_VOLUME}:/var/log
+    environment:
+      - APP=scrape
+      - DB_URL=${DB_URL}
+      - LOG_PATH=/var/log
+      - REDIS=${REDIS}
+      - WAIT_HOSTS=db:3306,redis:6379      
+      - WORKER_CONCURRENCY=autoscale=5,1
+      # - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+
+  beat:
+    image: hulk66/sentiment:${VERSION}
+    volumes:
+      - ${LOG_VOLUME}:/var/log
+    environment:
+      - APP=beat
+      - LOG_PATH=/var/log
+      - REDIS=${REDIS}
+      - WAIT_HOSTS=db:3306,redis:6379       
+      # - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+
+  board:
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile
+    image: hulk66/sentiment:${VERSION}
+    ports:
+      - 8501:8501
+    volumes:
+      - ${LOG_VOLUME}:/var/log
+    environment:
+      - APP=board
+      - DB_URL=${DB_URL}
+      - LOG_PATH=/var/log
+      - REDIS=${REDIS}
+      - WAIT_HOSTS=db:3306,redis:6379       
+      # - CELERY_BROKER_URL=${CELERY_BROKER_URL}

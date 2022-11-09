@@ -28,7 +28,7 @@ def scrape_finwiz_news(ticker):
     return news_table
 
 def scrape_by_class(link, element, clazz):
-    logging.info("Scraping %s", link)
+    logging.debug("Scraping %s", link)
     req = Request(url=link, headers={'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:20.0) Gecko/20100101 Firefox/20.0'}) 
     response = urlopen(req)      
     html = BeautifulSoup(response, features="lxml")
@@ -103,8 +103,8 @@ def create_recommendation(stock):
     # do this only if we don't already have the recommmendations for this today
     today = date.today()
     dt = datetime(today.year, today.month, today.day)
-    recommendation = session.query(FinancialData).filter(FinancialData.datetime == dt, FinancialData.stock == stock).one_or_none()
-    if not recommendation:
+    fdata = session.query(FinancialData).filter(FinancialData.datetime == dt, FinancialData.stock == stock).one_or_none()
+    if not fdata:
         logging.info("Get Recommendation for %s", stock.shortName)
         module = "financialData"
         # recommendationTrend also possible
@@ -113,40 +113,40 @@ def create_recommendation(stock):
         if r.json()['quoteSummary']['result']:
             result = r.json()['quoteSummary']['result'][0]
             fin_data = result['financialData']
-            recommendation = FinancialData()
-            recommendation.stock = stock
-            recommendation.datetime = date.today()
-            recommendation.recommendationMean = get_raw_value(fin_data, 'recommendationMean')
-            recommendation.targetMeanPrice = get_raw_value(fin_data, 'targetMeanPrice')
-            recommendation.currentPrice = get_raw_value(fin_data, 'currentPrice')
-            recommendation.targetHighPrice = get_raw_value(fin_data, 'targetHighPrice')
-            recommendation.targetLowPrice = get_raw_value(fin_data, 'targetLowPrice')
-            recommendation.targetMedianPrice = get_raw_value(fin_data, 'targetMedianPrice')
-            recommendation.recommendationKey = fin_data['recommendationKey'] if 'recommendationKey' in fin_data else None
-            recommendation.revenuePerShare = get_raw_value(fin_data, 'revenuePerShare')
-            recommendation.returnOnAssets = get_raw_value(fin_data, 'returnOnAssets')
-            recommendation.returnOnEquity = get_raw_value(fin_data, 'returnOnEquity')
-            recommendation.grossProfits = get_raw_value(fin_data, 'grossProfits')
-            recommendation.freeCashflow = get_raw_value(fin_data, 'freeCashflow')
-            recommendation.operatingCashflow = get_raw_value(fin_data, 'operatingCashflow')
-            recommendation.earningsGrowth = get_raw_value(fin_data, 'earningsGrowth')
-            recommendation.revenueGrowth = get_raw_value(fin_data, 'revenueGrowth')
-            recommendation.grossMargins = get_raw_value(fin_data, 'grossMargins')
-            recommendation.ebitdaMargins = get_raw_value(fin_data, 'ebitdaMargins')
-            recommendation.operatingMargins = get_raw_value(fin_data, 'operatingMargins')
-            recommendation.profitMargins = get_raw_value(fin_data, 'profitMargins')
-            recommendation.numberOfAnalystOpinions = get_raw_value(fin_data, 'numberOfAnalystOpinions')
-            recommendation.totalCash = get_raw_value(fin_data, 'totalCash')
-            recommendation.totalCashPerShare = get_raw_value(fin_data, 'totalCashPerShare')
-            recommendation.ebitda = get_raw_value(fin_data, 'ebitda')
-            recommendation.totalDebt = get_raw_value(fin_data, 'totalDebt')
-            recommendation.quickRatio = get_raw_value(fin_data, 'quickRatio')
-            recommendation.currentRatio = get_raw_value(fin_data, 'currentRatio')
-            recommendation.totalRevenue = get_raw_value(fin_data, 'totalRevenue')
-            recommendation.quickRatio = get_raw_value(fin_data, 'quickRatio')
-            recommendation.debtToEquity = get_raw_value(fin_data, 'debtToEquity')
+            fdata = FinancialData()
+            fdata.stock = stock
+            fdata.datetime = date.today()
+            fdata.recommendationMean = get_raw_value(fin_data, 'recommendationMean')
+            fdata.targetMeanPrice = get_raw_value(fin_data, 'targetMeanPrice')
+            fdata.currentPrice = get_raw_value(fin_data, 'currentPrice')
+            fdata.targetHighPrice = get_raw_value(fin_data, 'targetHighPrice')
+            fdata.targetLowPrice = get_raw_value(fin_data, 'targetLowPrice')
+            fdata.targetMedianPrice = get_raw_value(fin_data, 'targetMedianPrice')
+            fdata.recommendationKey = fin_data['recommendationKey'] if 'recommendationKey' in fin_data else None
+            fdata.revenuePerShare = get_raw_value(fin_data, 'revenuePerShare')
+            fdata.returnOnAssets = get_raw_value(fin_data, 'returnOnAssets')
+            fdata.returnOnEquity = get_raw_value(fin_data, 'returnOnEquity')
+            fdata.grossProfits = get_raw_value(fin_data, 'grossProfits')
+            fdata.freeCashflow = get_raw_value(fin_data, 'freeCashflow')
+            fdata.operatingCashflow = get_raw_value(fin_data, 'operatingCashflow')
+            fdata.earningsGrowth = get_raw_value(fin_data, 'earningsGrowth')
+            fdata.revenueGrowth = get_raw_value(fin_data, 'revenueGrowth')
+            fdata.grossMargins = get_raw_value(fin_data, 'grossMargins')
+            fdata.ebitdaMargins = get_raw_value(fin_data, 'ebitdaMargins')
+            fdata.operatingMargins = get_raw_value(fin_data, 'operatingMargins')
+            fdata.profitMargins = get_raw_value(fin_data, 'profitMargins')
+            fdata.numberOfAnalystOpinions = get_raw_value(fin_data, 'numberOfAnalystOpinions')
+            fdata.totalCash = get_raw_value(fin_data, 'totalCash')
+            fdata.totalCashPerShare = get_raw_value(fin_data, 'totalCashPerShare')
+            fdata.ebitda = get_raw_value(fin_data, 'ebitda')
+            fdata.totalDebt = get_raw_value(fin_data, 'totalDebt')
+            fdata.quickRatio = get_raw_value(fin_data, 'quickRatio')
+            fdata.currentRatio = get_raw_value(fin_data, 'currentRatio')
+            fdata.totalRevenue = get_raw_value(fin_data, 'totalRevenue')
+            fdata.quickRatio = get_raw_value(fin_data, 'quickRatio')
+            fdata.debtToEquity = get_raw_value(fin_data, 'debtToEquity')
 
-    return recommendation
+    return fdata
 
 def parse_finwiz_news(symbol):
     try:
@@ -252,7 +252,7 @@ def main():
     tickers = list(set(known_symbols + top_gainers + top_loosers + major_news))
     count = 0
     total = len(tickers)
-    for ticker in tickers:
+    for ticker in tickers[:2]:
         logging.info("%i/%i - Getting News for %s", count, total, ticker)
         parse_finwiz_news(ticker)
         count += 1

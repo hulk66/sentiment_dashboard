@@ -6,6 +6,7 @@ from sqlalchemy import pool
 from alembic import context
 
 import sentiment.domain
+import sentiment.config
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,6 +29,8 @@ target_metadata = sentiment.domain.Base.metadata
 # ... etc.
 
 
+config.set_main_option('sqlalchemy.url', sentiment.config.DB_URL)
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -41,6 +44,7 @@ def run_migrations_offline() -> None:
 
     """
     url = config.get_main_option("sqlalchemy.url")
+    # url = sentiment.config.DB_URL
     context.configure(
         url=url,
         target_metadata=target_metadata,

@@ -24,7 +24,7 @@ class Stock(Base):
     __tablename__ = "stock"
     symbol = Column(String(50), primary_key=True)
     ticker = relationship("Ticker", back_populates="stock", cascade="all, delete-orphan")    
-    recommendations = relationship("Recommendation", back_populates="stock", cascade="all, delete-orphan")    
+    recommendations = relationship("FinancialData", back_populates="stock", cascade="all, delete-orphan")    
 
     industry = Column(String(LEN_STR_SHORT))
     shortName = Column(String(LEN_STR_SHORT))
@@ -115,13 +115,14 @@ class Ticker(Base):
     datetime = Column(DateTime)
     headline = Column(String(LEN_STR_LONG), nullable=False)
     link = Column(String(LEN_STR_LONG), nullable=False)
-    source = Column(String(LEN_STR_SHORT), nullable=False)
+    source = Column(String(LEN_STR_SHORT))
     text = Column(Text)
     stock_id = Column(String(50), ForeignKey("stock.symbol"), nullable=False)
     stock = relationship("Stock", back_populates="ticker")
-    sentiment = Column(String(20), nullable=False)
-    score = Column(Float, nullable=False)
+    sentiment = Column(String(20))
+    score = Column(Float)
     link_hash = Column(String(128), unique=True, nullable=False)
+    scrape_result = Column(String(20), index=True)
 
     def to_dict(self):
         return {
