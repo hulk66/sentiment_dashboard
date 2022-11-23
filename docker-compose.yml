@@ -47,6 +47,7 @@ services:
       - WAIT_HOSTS=db:3306,redis:6379      
       - WORKER_CONCURRENCY=autoscale=5,1
       # - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - LIMIT_SCRAPING=${LIMIT_SCRAPING}
 
   beat:
     image: hulk66/sentiment:${VERSION}

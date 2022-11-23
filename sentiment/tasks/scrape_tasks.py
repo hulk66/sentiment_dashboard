@@ -380,7 +380,7 @@ def parse_finwiz_news(symbol):
                     stock = session.query(Stock).get(symbol)
             rows = news.findAll('tr')
             last_date = None
-            for row in rows[:2]:
+            for row in rows[:config.LIMIT_SCRAPING]:
                 last_date = create_ticker_entry(stock, row, last_date)
             get_financial_data(stock)
             session.commit()
@@ -452,7 +452,7 @@ def scrape_stocks():
     tickers = list(set(known_symbols + top_gainers + top_loosers + major_news))
     count = 0
     total = len(tickers)
-    for ticker in tickers[:2]:
+    for ticker in tickers[:config.LIMIT_SCRAPING]:
         logger.info("%i/%i - Getting News for %s", count, total, ticker)
         parse_finwiz_news.apply_async(queue="scrape", args=[ticker,])
         count += 1
