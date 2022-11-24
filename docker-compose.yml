@@ -72,6 +72,7 @@ services:
       WAIT_HOSTS: db:3306, redis:6379       
       WAIT_HOSTS_TIMEOUT: 120
       WAIT_AFTER_HOSTS: 2
+      CRON_HOUR: ${CRON_HOUR}
       # - CELERY_BROKER_URL=${CELERY_BROKER_URL}
 
   board:

@@ -5,6 +5,7 @@ sentiment/__pycache__/
 *.py[cod]
 *$py.class
 .DS_Store
+celerybeat-schedule.db
 data/
 docker_data/
 # C extensions

@@ -17,16 +17,6 @@
             "justMyCode": true,
             "args": ["run", "sentiment/board.py"]
         },
-        /*
-        {
-            "name": "Scrape",
-            "type": "python",
-            "request": "launch",
-            "program": "sentiment/scrape.py",
-            "console": "integratedTerminal",
-            "justMyCode": true
-        },*/
-
         {
             "name": "Celery - App",
             "type": "python",
@@ -47,6 +37,22 @@
                 "--loglevel=INFO"
             ]
         },
+        {
+            "name": "Celery - Beat",
+            "type": "python",
+            "request": "launch",
+            "module": "celery",
+            "console": "integratedTerminal",
+            // do not load docker-compose env file
+            "envFile": "${workspaceFolder}/.envx",
+            "justMyCode": true,
+            "args": [
+                "-A",
+                "sentiment.celery_app",
+                "beat"
+            ]
+        },
+
         {
             "name": "Alembic upgrade",
             "type": "python",

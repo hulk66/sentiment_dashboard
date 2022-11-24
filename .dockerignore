@@ -21,3 +21,4 @@ coverage.xml
 docker_data
 data 
 .vscode
+celerybeat-schedule.db

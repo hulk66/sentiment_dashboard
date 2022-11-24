@@ -13,11 +13,11 @@ app.conf.beat_schedule = {
         'options': {'queue': 'scrape'},
         'schedule': crontab(hour=config.CRON_HOUR)
     },
-    'test': {
-        'task': 'sentiment.tasks.scrape_tasks.test',
-        'options': {'queue': 'scrape'},
-        'schedule': crontab(minute=2)
-    },
+    #'test': {
+    #    'task': 'sentiment.tasks.scrape_tasks.test',
+    #    'options': {'queue': 'scrape'},
+    #    'schedule': crontab(minute=config.CRON_HOUR)
+    #},
 
 }
 
