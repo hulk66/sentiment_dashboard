@@ -9,9 +9,9 @@ elif [ $APP = 'scrape' ]
   then 
       ./wait
       # alembic upgrade head
-      celery -A sentiment.celery_app worker -Q scrape,sentiment --$WORKER_CONCURRENCY --loglevel=INFO
+      celery -A sentiment.celery_app worker -Q scrape,sentiment --$WORKER_CONCURRENCY --loglevel INFO
 elif [ $APP = 'beat' ]
   then 
       ./wait
-      celery -A sentiment.celery_app beat 
+      celery -A sentiment.celery_app beat --loglevel DEBUG
 fi

@@ -41,7 +41,7 @@ def init_worker(**kwargs):
     tokenizer = BertTokenizer.from_pretrained("./finbert")
     finbert = BertForSequenceClassification.from_pretrained("./finbert")
     sentiment_pipeline = pipeline("sentiment-analysis", model=finbert, tokenizer=tokenizer)
-    logger.info("... done")
+    logger.debug("... done")
     # sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
 
 @worker_process_shutdown.connect
@@ -150,9 +150,9 @@ def test_rate1m(self, i):
 @app.task()
 def test():
     logger.info("Start test")
-    for i in range(20):
-        app.send_task("sentiment.tasks.scrape_tasks.test_rate6m", args=(i,))
-        app.send_task("sentiment.tasks.scrape_tasks.test_rate1m", args=(i,))
+    #for i in range(20):
+    #    app.send_task("sentiment.tasks.scrape_tasks.test_rate6m", args=(i,))
+    #    app.send_task("sentiment.tasks.scrape_tasks.test_rate1m", args=(i,))
 
 
 @app.task(bind=True)

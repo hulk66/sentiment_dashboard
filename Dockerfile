@@ -5,8 +5,8 @@ WORKDIR /app
 # Create the environment:
 COPY environment.yml .
 RUN conda env create -f environment.yml
-COPY sentiment sentiment
 COPY finbert finbert
+COPY sentiment sentiment
 COPY run.py .
 COPY docker-entrypoint.sh .
 COPY alembic alembic

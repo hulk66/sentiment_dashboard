@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
 
@@ -10,7 +10,7 @@ services:
     ports:
       - 3306:3306
     environment:
-      - MARIADB_ROOT_PASSWORD=example
+      MARIADB_ROOT_PASSWORD: "example"
 
   redis:
     image: redis
@@ -23,7 +23,10 @@ services:
     image: adminer
     ports:
       - 9090:8080
-  
+    depends_on:
+      - db
+      - redis
+
   #rabbitmq:
   #  image: rabbitmq:management
   #  hostname: rabbitmq
@@ -39,25 +42,36 @@ services:
     image: hulk66/sentiment:${VERSION}
     volumes:
       - ${LOG_VOLUME}:/var/log
+    depends_on:
+      - db
+      - redis
     environment:
-      - APP=scrape
-      - DB_URL=${DB_URL}
-      - LOG_PATH=/var/log
-      - REDIS=${REDIS}
-      - WAIT_HOSTS=db:3306,redis:6379      
-      - WORKER_CONCURRENCY=autoscale=5,1
+      APP: "scrape"
+      DB_URL: ${DB_URL}
+      LOG_PATH: /var/log
+      REDIS: ${REDIS}
+      WAIT_HOSTS: db:3306, redis:6379       
+      WAIT_HOSTS_TIMEOUT: 120
+      WAIT_AFTER_HOSTS: 2
+      WORKER_CONCURRENCY: autoscale=5,1
       # - CELERY_BROKER_URL=${CELERY_BROKER_URL}
-      - LIMIT_SCRAPING=${LIMIT_SCRAPING}
+      LIMIT_SCRAPING: ${LIMIT_SCRAPING}
 
   beat:
     image: hulk66/sentiment:${VERSION}
     volumes:
       - ${LOG_VOLUME}:/var/log
+    depends_on:
+      - db
+      - redis
     environment:
-      - APP=beat
-      - LOG_PATH=/var/log
-      - REDIS=${REDIS}
-      - WAIT_HOSTS=db:3306,redis:6379       
+      APP: "beat"
+      DB_URL: ${DB_URL}
+      LOG_PATH: /var/log
+      REDIS: ${REDIS}
+      WAIT_HOSTS: db:3306, redis:6379       
+      WAIT_HOSTS_TIMEOUT: 120
+      WAIT_AFTER_HOSTS: 2
       # - CELERY_BROKER_URL=${CELERY_BROKER_URL}
 
   board:
@@ -69,10 +83,15 @@ services:
       - 8501:8501
     volumes:
       - ${LOG_VOLUME}:/var/log
+    depends_on:
+      - db
+      - redis
     environment:
-      - APP=board
-      - DB_URL=${DB_URL}
-      - LOG_PATH=/var/log
-      - REDIS=${REDIS}
-      - WAIT_HOSTS=db:3306,redis:6379       
+      APP: "board"
+      DB_URL: ${DB_URL}
+      LOG_PATH: /var/log
+      REDIS: ${REDIS}
+      WAIT_HOSTS: db:3306, redis:6379       
+      WAIT_HOSTS_TIMEOUT: 120
+      WAIT_AFTER_HOSTS: 2
       # - CELERY_BROKER_URL=${CELERY_BROKER_URL}
