@@ -228,7 +228,7 @@ def throttle_task(rate: str, key: Any = None) -> Callable:
                 # fail to do this, it gets auto-incremented, and you'll expend
                 # retries during the backoff.
                 task.request.retries = task.request.retries - 1
-                logger.info(
+                logger.debug(
                     "Throttling task %s (%s) via decorator for %ss",
                     task.name,
                     task.request.id,

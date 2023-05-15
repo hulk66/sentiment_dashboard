@@ -1,22 +1,21 @@
 name: sentiment_dashboard
 channels:
-  - conda-forge
-  - huggingface
+  #- conda-forge
+  #- huggingface
   - anaconda
 dependencies:
   - python=3.9
-  - transformers
-  - tokenizers=0.12.1
-  - dash
-  - pymysql 
-  - pandas 
-  - sqlalchemy 
-  - beautifulsoup4 
-  - requests
   - pip
-  - streamlit
-  - alembic
+  - transformers
   - pip:
       - yfinance  
-      - "celery[redis]"
-prefix: /Users/tobias/miniforge3/envs/sentiment_dashboard
+      - streamlit
+      - celery[redis]
+      - dash
+      - pymysql 
+      - sqlalchemy 
+      - beautifulsoup4 
+      - requests
+      - alembic
+
+# prefix: /Users/tobias/miniforge3/envs/sentiment_dashboard

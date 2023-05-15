@@ -19,7 +19,7 @@ import logging
 import hashlib
 from bs4 import BeautifulSoup
 from celery.signals import after_setup_logger, worker_process_init, worker_process_shutdown
-from sentiment.util.celery_util import throttle_task
+from sentiment.util.celery_util import throttle_task, clear_queue
 import random
 
 
@@ -41,7 +41,7 @@ def init_worker(**kwargs):
     tokenizer = BertTokenizer.from_pretrained("./finbert")
     finbert = BertForSequenceClassification.from_pretrained("./finbert")
     sentiment_pipeline = pipeline("sentiment-analysis", model=finbert, tokenizer=tokenizer)
-    logger.debug("... done")
+    logger.info("... done")
     # sentiment_pipeline = pipeline("sentiment-analysis", model="ProsusAI/finbert")
 
 @worker_process_shutdown.connect
@@ -134,7 +134,7 @@ def scrape_div_class(ticker_id, link, clazz):
         session.commit()
         set_sentiment.apply_async(queue="sentiment", args=[ticker_id,])
     else:
-        logger.error("Either Ticker with id %i was not found or has been scrapes already", ticker_id)
+        logger.error("Either Ticker with id %i was not found or has been scraped already", ticker_id)
 
 @app.task(bind=True)
 @throttle_task("6/m")
@@ -282,19 +282,24 @@ def create_ticker_entry(stock, row, last_date = None):
     ticker = session.query(Ticker).filter(Ticker.link_hash == hash).one_or_none()
     if ticker is None:
         ticker = Ticker()
+        session.add(ticker)
         ticker.stock = stock
         ticker.link = link
         ticker.link_hash = hash
         ticker.headline = row.a.text
-        ticker.date = date
-        ticker.time = time
-        ticker.datetime = datetime.strptime(ticker.date + ' ' + ticker.time, "%b-%d-%y %I:%M%p")
+        if date and time:
+            ticker.date = date
+            ticker.time = time
+            ticker.datetime = datetime.strptime(ticker.date + ' ' + ticker.time, "%b-%d-%y %I:%M%p")
+        else:
+            logger.warn("Date or Time is null: Date, time", date, time)
+            ticker.datetime = datetime.now()
         ticker.source = row.span.text.strip()
         session.commit()
         scrape_detail(ticker.id, link)
         return ticker.date
     else:
-        logger.info("Ticker already exists %i", ticker.id)
+        logger.debug("Ticker already exists %i", ticker.id)
         return last_date
 
 
@@ -313,9 +318,18 @@ def get_financial_data(stock):
     # do this only if we don't already have the recommmendations for this today
     today = date.today()
     dt = datetime(today.year, today.month, today.day)
-    fdata = session.query(FinancialData).filter(FinancialData.datetime == dt, FinancialData.stock == stock).one_or_none()
+    flist = session.query(FinancialData).filter(FinancialData.datetime == dt, FinancialData.stock == stock).all()
+    if len(flist) > 1:
+        logger.warning("More than one FinData entry for %s and current date", stock.symbol)
+        fdata = flist[0]
+        for e in flist[1:]:
+            session.delete(e)
+    elif len(flist) == 1:
+        fdata = flist[0]
+    else:
+        fdata = None
     if not fdata:
-        logger.info("Get Financial Data for %s", stock.shortName)
+        logger.info("Get Financial Data for %s", stock.symbol)
         module = "financialData"
         # recommendationTrend also possible
         url = f'https://query1.finance.yahoo.com/v10/finance/quoteSummary/{stock.symbol}?modules={module}'
@@ -325,7 +339,7 @@ def get_financial_data(stock):
             fin_data = result['financialData']
             fdata = FinancialData()
             fdata.stock = stock
-            fdata.datetime = date.today()
+            fdata.datetime = dt
             fdata.recommendationMean = get_raw_value(fin_data, 'recommendationMean')
             fdata.targetMeanPrice = get_raw_value(fin_data, 'targetMeanPrice')
             fdata.currentPrice = get_raw_value(fin_data, 'currentPrice')
@@ -358,8 +372,9 @@ def get_financial_data(stock):
 
     return fdata
 
-@app.task
-def parse_finwiz_news(symbol):
+@app.task(bind=True)
+@throttle_task(config.THROTTLE_WEAK)
+def parse_finwiz_news(self, symbol):
     try:
         news = scrape_finwiz_news(symbol)
         if news:
@@ -384,18 +399,19 @@ def parse_finwiz_news(symbol):
                 last_date = create_ticker_entry(stock, row, last_date)
             get_financial_data(stock)
             session.commit()
-    except HTTPError:
-        logger.warning("Scraping Error")
+    except HTTPError as exc:
+        logger.warning("Scraping Error xxx")
+        logger.warning(exc)
 
 def get_gainers_loosers(html, id):
     tickers = html.find(id=id)
     return [ticker.text for ticker in tickers.find_all("a", class_="tab-link")]
 
 def get_top_gainers(html = None):
-    return get_gainers_loosers(html, "signals_1")
+    return get_gainers_loosers(html, "js-signals_1")
 
 def get_top_loosers(html = None):
-    return get_gainers_loosers(html, "signals_2")
+    return get_gainers_loosers(html, "js-signals_2")
 
 def get_major_news(html = None):
     if not html:
@@ -436,6 +452,7 @@ def re_scrape():
 
 @app.task
 def scrape_stocks():
+
     logger.info("Start new Run")
     log = Log()
     log.start = datetime.now()
@@ -450,6 +467,7 @@ def scrape_stocks():
     known_stocks = session.scalars(select(Stock))
     known_symbols = [stock.symbol for stock in known_stocks]
     tickers = list(set(known_symbols + top_gainers + top_loosers + major_news))
+    random.shuffle(tickers)
     count = 0
     total = len(tickers)
     for ticker in tickers[:config.LIMIT_SCRAPING]:
@@ -457,4 +475,6 @@ def scrape_stocks():
         parse_finwiz_news.apply_async(queue="scrape", args=[ticker,])
         count += 1
 
-
+    log.status = "done"
+    log.end = datetime.now()
+    session.commit()

@@ -1,6 +1,5 @@
 # Byte-compiled / optimized / DLL files
-__pycache__/
-sentiment/__pycache__/
+*/__pycache__/
 .docker_temp*
 *.py[cod]
 *$py.class
@@ -132,3 +131,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+celerybeat-schedule.bak
+celerybeat-schedule.dat
+celerybeat-schedule.dir
+data.db
+dump.rdb

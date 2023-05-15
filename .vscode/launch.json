@@ -5,6 +5,7 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "name": "Board",
             "type": "python",
@@ -24,7 +25,7 @@
             "module": "celery",
             "console": "integratedTerminal",
             // do not load docker-compose env file
-            "envFile": "${workspaceFolder}/.envx",
+            // "envFile": "${workspaceFolder}/.envx",
             "justMyCode": true,
             "args": [
                 "-A",
@@ -33,7 +34,7 @@
                 "-Q",
                 "scrape,sentiment",
                 // "--autoscale=8,1",
-                "--concurrency=2",
+                "--concurrency=1",
                 "--loglevel=INFO"
             ]
         },

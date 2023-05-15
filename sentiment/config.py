@@ -1,8 +1,8 @@
 from os import environ as env
 
 
-DB_URL=env.get("DB_URL", "mysql+pymysql://sentiment:sentiment@localhost/sentiment")
-REDIS=env.get("REDIS", "redis://localhost:6379")
+DB_URL=env.get("DB_URL", "mysql+pymysql://sentiment:sentiment@mariadb/sentiment")
+REDIS=env.get("REDIS", "redis://redis:6379")
 CELERY_BROKER_URL=env.get("CELERY_BROKER_URL", REDIS + '/0')
 CELERY_RESULT_BACKEND="rpc://"
 REDIS_CACHE=REDIS + '/1'

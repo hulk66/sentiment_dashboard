@@ -3,15 +3,13 @@ set -e
 # conda activate sentiment_dashboard
 if [ $APP = 'board' ]
   then
-      ./wait
       streamlit run run.py
 elif [ $APP = 'scrape' ]
   then 
-      ./wait
       # alembic upgrade head
-      celery -A sentiment.celery_app worker -Q scrape,sentiment --$WORKER_CONCURRENCY --loglevel INFO
+      celery -A sentiment.celery_app purge -f -Q scrape,sentiment
+      celery -A sentiment.celery_app worker -B -Q scrape,sentiment --$WORKER_CONCURRENCY --loglevel INFO -s /tmp/celery-beat
 elif [ $APP = 'beat' ]
   then 
-      ./wait
-      celery -A sentiment.celery_app beat --loglevel DEBUG
+      celery -A sentiment.celery_app beat --loglevel DEBUG -s /tmp/celery-beat
 fi
